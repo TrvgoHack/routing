@@ -40,7 +40,7 @@ dat=get(test_url)
 leg=dat["routes"][0]["legs"][0]
 
 def get_routes(src,dest):
-	return get(build_url(directions, {"origin": src, "destination": dest , "alternatives": "true"}))["routes"]
+	return get(build_url(directions, {"origin": src, "destination": dest , "alternatives": "true", "mode": 'bicycling'}))["routes"]
 
 def get_points_for_src_dest(src,dest,reach):
 	return [get_points(route,reach) for route in get_routes(src,dest)]
@@ -83,12 +83,6 @@ def intervals_wrap():
 #prints a collection of points
 def csv_print(l):
 	[print("%f,%f"%(x['lat'],x['lng'])) for x in l]
-
-
-#def get_intervals(src,dest,reach):
-
-#@app.route("/get_points_for_src_dest",methods=['GET'])
-#def get_points_for_src_dest_wrap():
 
 
 if __name__ == "__main__":
