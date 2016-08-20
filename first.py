@@ -66,9 +66,10 @@ def get_intervals(leg,reach):
 	for s in leg["steps"]:
 		cur_dist=s["distance"]["value"]
 		if (cur_dist > dist):
-			yield weighted(dist/cur_dist,s["start_location"],s["end_location"])
+			yield s["end_location"] #weighted(dist/cur_dist,s["start_location"],s["end_location"])
 			dist=reach
 		dist = dist - cur_dist
+	yield leg["end_location"]
 
 def get_intervals_for_src_dest(src,dest,reach):
 	return [list(get_intervals(route["legs"][0],reach)) for route in get_routes(src,dest)]
