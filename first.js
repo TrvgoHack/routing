@@ -1,27 +1,18 @@
-var http = require('http');
+var request = require('request')
+var querystring=require('querystring')
 
-//The url we want is `www.nodejitsu.com:1337/`
-var options = {
-  host: 'www.google.com',
-  path: '/',
-  //since we are listening on a custom port, we need to specify it by hand
-  port: '8080',
-  //This is what changes the request to a POST request
-  method: 'GET'
-};
+var gmap = 'http://maps.googleapis.com/maps/api/'
+var directions = 'directions/json?'
+var test_data = {origin: 'Toronto', destination: 'Montreal', avoid: 'highways', mode: 'bicycling'}
 
-callback = function(response) {
-  var str = ''
-  response.on('data', function (chunk) {
-    str += chunk;
-  });
+// sub is the subpath, object contains all parameters
+function get (sub, obj) {
+	 ret=""
+	callback = function(response) {
 
-  response.on('end', function () {
-    console.log(str);
-  });
+	  ret=response.body
+	}
+	var req=request(gmap + sub + querystring.stringify(obj)).end()
+	return ret
 }
-
-var req = http.request(options, callback);
-//This is the data we are posting, it needs to be a string or a buffer
-req.write("hello world!");
-req.end();
+get(directions,test_data)

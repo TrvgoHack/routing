@@ -1,6 +1,13 @@
 import urllib
 import urllib.request
 import json
+from flask import Flask
+from flask import request
+
+
+app = Flask(__name__)
+
+
 
 gmap = 'http://maps.googleapis.com/maps/api/'
 directions = 'directions/json?'
@@ -32,16 +39,28 @@ test_url=build_url(directions,test_data)
 dat=get(test_url)
 leg=dat["routes"][0]["legs"][0]
 
-#1. function
 def get_routes(src,dest):
 	return get(build_url(directions, {"origin": src, "destination": dest , "alternatives": "true"}))["routes"]
+
+def get_points_for_src_dest(src,dest,reach):
+	return [get_points(route,reach) for route in get_routes(src,dest)]
+
+#1. function
+@app.route("/get_routes",methods=['GET'])
+def get_routes_wrap():
+	src,dest=[request.args.get(i) for i in ["start","end"]]
+	return json.dumps(get_routes(src,dest))
 
 #2. function
 def get_points(route,reach):
 	return get_pnt(route["legs"][0],reach)
 
-# 1 + 2
-def get_points_for_src_dest(src,dest, reach):
-	return [get_points(route,reach) for route in get_routes(src,dest)]
+#3. function
+@app.route("/get_points_for_src_dest",methods=['GET'])
+def get_points_for_src_dest_wrap():
+	src,dest,reach=[request.args.get(i) for i in ["start","end","reach"]]
+	return json.dumps(get_points_for_src_dest(src,dest,float(reach)))
 
 
+if __name__ == "__main__":
+    app.run()
