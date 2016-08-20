@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 gmap = 'http://maps.googleapis.com/maps/api/'
 directions = 'directions/json?'
-test_data = {"origin": 'Toronto', "destination": 'Montreal', "avoid": 'highways', "mode": 'bicycling'}
+test_data = {"origin": 'Munich', "destination": 'Cologne', "avoid": 'highways', "mode": 'bicycling'}
 
 #composes the url
 def build_url(sub,obj):
@@ -60,6 +60,34 @@ def get_points(route,reach):
 def get_points_for_src_dest_wrap():
 	src,dest,reach=[request.args.get(i) for i in ["start","end","reach"]]
 	return json.dumps(get_points_for_src_dest(src,dest,float(reach)))
+
+def get_intervals(leg,reach):
+	dist=reach
+	for s in leg["steps"]:
+		cur_dist=s["distance"]["value"]
+		if (cur_dist > dist):
+			yield weighted(dist/cur_dist,s["start_location"],s["end_location"])
+			dist=reach
+		dist = dist - cur_dist
+
+def get_intervals_for_src_dest(src,dest,reach):
+	return [list(get_intervals(route["legs"][0],reach)) for route in get_routes(src,dest)]
+
+@app.route("/intervals",methods=['GET'])
+def intervals_wrap():
+	src,dest,reach=[request.args.get(i) for i in ["start","end","reach"]]
+	return json.dumps(get_intervals_for_src_dest(src,dest,float(reach)))
+
+
+#prints a collection of points
+def csv_print(l):
+	[print("%f,%f"%(x['lat'],x['lng'])) for x in l]
+
+
+#def get_intervals(src,dest,reach):
+
+#@app.route("/get_points_for_src_dest",methods=['GET'])
+#def get_points_for_src_dest_wrap():
 
 
 if __name__ == "__main__":
